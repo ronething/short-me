@@ -46,18 +46,12 @@ func (a *App) createShortLink(w http.ResponseWriter, r *http.Request) {
 
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
 		fmt.Println(err)
-		respondWithError(w,StatusError{
-			http.StatusBadRequest,
-			fmt.Errorf("parse params failed %s",r.Body)
-		})
+		respondWithError(w, NewStatusError(fmt.Errorf("parse params failed %v", r.Body)))
 		return
 	}
 	if err = validator.Validate(req); err != nil {
 		fmt.Println(err)
-		respondWithError(w,StatusError{
-			http.StatusBadRequest,
-			fmt.Errorf("validate params failed %s",r.Body)
-		})
+		respondWithError(w, NewStatusError(fmt.Errorf("validate params failed %v", req)))
 		return
 	}
 
@@ -95,14 +89,29 @@ func (a *App) Run(addr string) {
 
 }
 
-func respondWithError(writer http.ResponseWriter, err error ) {
+func respondWithError(w http.ResponseWriter, err error) {
 	switch e := err.(type) {
 
 	case Error:
-		log.Println("HTTP",e.Status(),e)
-		respondWithJSON()
+		log.Println("HTTP", e.Status(), e.Error())
+		respondWithJSON(w, e.Status(), e.Error())
+	default:
+		respondWithJSON(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 
-
-	
 	}
+}
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	var (
+		resp []byte
+		err  error
+	)
+	if resp, err = json.Marshal(payload); err != nil {
+		fmt.Println(err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	w.WriteHeader(code)
+	w.Write(resp)
+
 }
