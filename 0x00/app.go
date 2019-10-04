@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
 	"gopkg.in/validator.v2"
 	"log"
 	"net/http"
@@ -11,7 +12,8 @@ import (
 )
 
 type App struct {
-	Router *mux.Router
+	Router      *mux.Router
+	MiddleWares *MiddleWare
 }
 
 type shortenReq struct {
@@ -28,13 +30,19 @@ type shortLinkResp struct {
 func (a *App) Initialize() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	a.Router = mux.NewRouter()
+	a.MiddleWares = &MiddleWare{}
 	a.initializeRoutes()
 
 }
 func (a *App) initializeRoutes() {
-	a.Router.HandleFunc("/api/shorten", a.createShortLink).Methods("POST")
-	a.Router.HandleFunc("/api/info", a.getShortLink).Methods("GET")
-	a.Router.HandleFunc("/{shortLink:[a-zA-Z0-9]{1,11}}", a.redirect).Methods("GET")
+	var (
+		m alice.Chain
+	)
+	m = alice.New(a.MiddleWares.LoggingHandler, a.MiddleWares.RecoverHandler)
+	// 加入 middleware
+	a.Router.Handle("/api/shorten", m.ThenFunc(a.createShortLink)).Methods("POST")
+	a.Router.Handle("/api/info", m.ThenFunc(a.getShortLink)).Methods("GET")
+	a.Router.Handle("/{shortLink:[a-zA-Z0-9]{1,11}}", m.ThenFunc(a.redirect)).Methods("GET")
 
 }
 
@@ -72,6 +80,8 @@ func (a *App) getShortLink(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(s)
 
+	panic(s)
+
 }
 
 func (a *App) redirect(w http.ResponseWriter, r *http.Request) {
@@ -100,6 +110,7 @@ func respondWithError(w http.ResponseWriter, err error) {
 
 	}
 }
+
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	var (
 		resp []byte

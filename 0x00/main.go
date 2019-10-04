@@ -7,6 +7,6 @@ func main() {
 	a = &App{
 	}
 	a.Initialize()
-	a.Run(":8888")
+	a.Run("127.0.0.1:8888")
 
 }

@@ -10,6 +10,14 @@
   version = "v1.7.3"
 
 [[projects]]
+  branch = "master"
+  digest = "1:e74fa8e635591eb1ad79e8e711bff8bea4e12e9737563daf12af325c6ea206e4"
+  name = "github.com/justinas/alice"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "03f45bd4b7dad4734bc4620e46a35789349abb20"
+
+[[projects]]
   branch = "v2"
   digest = "1:e6cec130e84c46342cc974480882472d5008879c9e30f0c8a3ee4d08e9d1e2a0"
   name = "gopkg.in/validator.v2"
@@ -22,6 +30,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/gorilla/mux",
+    "github.com/justinas/alice",
     "gopkg.in/validator.v2",
   ]
   solver-name = "gps-cdcl"
