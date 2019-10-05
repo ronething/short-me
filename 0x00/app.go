@@ -14,6 +14,7 @@ import (
 type App struct {
 	Router      *mux.Router
 	MiddleWares *MiddleWare
+	Config      *Env
 }
 
 type shortenReq struct {
@@ -27,13 +28,15 @@ type shortLinkResp struct {
 
 // initialize
 
-func (a *App) Initialize() {
+func (a *App) Initialize(e *Env) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	a.Config = e
 	a.Router = mux.NewRouter()
 	a.MiddleWares = &MiddleWare{}
 	a.initializeRoutes()
 
 }
+
 func (a *App) initializeRoutes() {
 	var (
 		m alice.Chain
@@ -49,6 +52,7 @@ func (a *App) initializeRoutes() {
 func (a *App) createShortLink(w http.ResponseWriter, r *http.Request) {
 	var (
 		req shortenReq
+		s   string
 		err error
 	)
 
@@ -65,31 +69,46 @@ func (a *App) createShortLink(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	fmt.Println(req)
+	if s, err = a.Config.S.Shorten(req.URL, req.ExpirationInMinutes); err != nil {
+		respondWithError(w, err)
+	}
 
+	respondWithJSON(w, http.StatusCreated, shortLinkResp{ShortLink: s})
 }
 
 func (a *App) getShortLink(w http.ResponseWriter, r *http.Request) {
 	var (
 		vals url.Values
 		s    string
+		i    interface{}
+		err  error
 	)
 
 	vals = r.URL.Query()
 	s = vals.Get("shortLink")
 
-	fmt.Println(s)
+	if i, err = a.Config.S.ShortLinkInfo(s); err != nil {
+		respondWithError(w, err)
+	}
 
-	panic(s)
+	respondWithJSON(w, http.StatusOK, i)
 
 }
 
 func (a *App) redirect(w http.ResponseWriter, r *http.Request) {
 	var (
 		vars map[string]string
+		url  string
+		err  error
 	)
 	vars = mux.Vars(r)
-	fmt.Println(vars["shortLink"])
+
+	if url, err = a.Config.S.UnShorten(vars["shortLink"]); err != nil {
+		respondWithError(w, err)
+	}
+
+	// temporary redirect -> not permanent, for user statistic
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 
 }
 

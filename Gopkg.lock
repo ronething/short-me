@@ -34,6 +34,14 @@
   revision = "03f45bd4b7dad4734bc4620e46a35789349abb20"
 
 [[projects]]
+  branch = "master"
+  digest = "1:2e9dc3598263154a610a7abfe5b51ec3e439b52fe894e3a3a7a48cd33d6552cd"
+  name = "github.com/mattheath/base62"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "b80cdc656a7a61702f293555d54777d6ff617eb7"
+
+[[projects]]
   branch = "v2"
   digest = "1:e6cec130e84c46342cc974480882472d5008879c9e30f0c8a3ee4d08e9d1e2a0"
   name = "gopkg.in/validator.v2"
@@ -48,6 +56,7 @@
     "github.com/go-redis/redis",
     "github.com/gorilla/mux",
     "github.com/justinas/alice",
+    "github.com/mattheath/base62",
     "gopkg.in/validator.v2",
   ]
   solver-name = "gps-cdcl"
