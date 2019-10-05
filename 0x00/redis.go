@@ -134,12 +134,12 @@ func (r *RedisCli) ShortLinkInfo(eid string) (interface{}, error) {
 }
 
 // un shorten method -> get source url
-func (r *RedisCli) UnShorten(eld string) (string, error) {
+func (r *RedisCli) UnShorten(eid string) (string, error) {
 	var (
 		url string
 		err error
 	)
-	if url, err = r.Cli.Get(fmt.Sprintf(ShortLinkKey, eld)).Result(); err == redis.Nil {
+	if url, err = r.Cli.Get(fmt.Sprintf(ShortLinkKey, eid)).Result(); err == redis.Nil {
 		return "", StatusError{
 			Code: 404,
 			Err:  errors.New("unknown short url"),

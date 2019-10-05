@@ -6,5 +6,5 @@ type Storage interface {
 	// 获取短地址信息接口
 	ShortLinkInfo(eid string) (interface{}, error)
 	// 获取长链接接口
-	UnShorten(eld string) (string, error)
+	UnShorten(eid string) (string, error)
 }
