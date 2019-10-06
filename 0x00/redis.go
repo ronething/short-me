@@ -119,6 +119,7 @@ func toSha1(s string) string {
 func (r *RedisCli) ShortLinkInfo(eid string) (interface{}, error) {
 	var (
 		d   string
+		i   interface{}
 		err error
 	)
 	if d, err = r.Cli.Get(fmt.Sprintf(ShortLinkDetailKey, eid)).Result(); err == redis.Nil {
@@ -129,7 +130,10 @@ func (r *RedisCli) ShortLinkInfo(eid string) (interface{}, error) {
 	} else if err != nil {
 		return "", err
 	} else {
-		return d, nil
+		if err = json.Unmarshal([]byte(d), &i); err != nil {
+			return "", err
+		}
+		return i, nil
 	}
 }
 

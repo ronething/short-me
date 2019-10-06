@@ -147,7 +147,7 @@ func TestGetShortLink(t *testing.T) {
 		t.Fatal("can not decode the resp", err)
 	}
 
-	if resp.URL != longURL {
+	if resp.URL != shortLinkInfo.URL {
 		t.Fatal("unexcepted shortLink", resp.URL)
 	}
 
