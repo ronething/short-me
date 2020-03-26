@@ -29,7 +29,6 @@ type URLDetail struct {
 }
 
 // init redis client
-
 func NewRedisCli(addr string, passwd string, db int) *RedisCli {
 	var (
 		c   *redis.Client
